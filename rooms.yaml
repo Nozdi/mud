@@ -1,6 +1,12 @@
-kitchen:
+-   name: kitchen
     description: You can eat here
     items:
         - glass:
             description: You can drink water with it
             capacity: 10
+-   name: bathroom
+    description: water is here!
+    items:
+        - backet:
+            description: Oh shit lot of water
+            capacity: 40

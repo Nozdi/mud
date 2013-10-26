@@ -1,8 +1,8 @@
 #!/usr/bin/env python3.3
 from utils import initializer
 from yaml import safe_load
+from networkx import connected_watts_strogatz_graph
 import Pyro4
-
 
 class Gamer:
     """
@@ -43,7 +43,9 @@ class Item:
 
 
 if __name__ == '__main__':
-    file_data = open("rooms.yaml")
-    print(safe_load(file_data))
+    with open("rooms.yaml") as data_file:
+        rooms_data = safe_load(data_file)
+    graph = connected_watts_strogatz_graph(5, 2,0.2) #so called small world graph
+    print(rooms_data)
     print(Room(1, 3, 4).description)
     print(Item(1, 2).capacity)
