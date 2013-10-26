@@ -3,6 +3,7 @@ from utils import initializer
 from yaml import safe_load
 from networkx import connected_watts_strogatz_graph
 import Pyro4
+import random
 
 class Gamer:
     """
@@ -45,6 +46,10 @@ class Item:
 if __name__ == '__main__':
     with open("rooms.yaml") as data_file:
         rooms_data = safe_load(data_file)
+    room_number = len(rooms_data)
+    room_order = list(range(room_number))
+    random.shuffle(room_order)
+    print(room_order)
     graph = connected_watts_strogatz_graph(5, 2,0.2) #so called small world graph
     print(rooms_data)
     print(Room(1, 3, 4).description)
