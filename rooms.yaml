@@ -1,0 +1,6 @@
+kitchen:
+    description: You can eat here
+    items:
+        - glass:
+            description: You can drink water with it
+            capacity: 10

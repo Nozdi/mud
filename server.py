@@ -1,6 +1,8 @@
 #!/usr/bin/env python3.3
 from utils import initializer
+from yaml import safe_load
 import Pyro4
+
 
 class Gamer:
     """
@@ -35,10 +37,13 @@ class Item:
     For example bucket, cup or sandwich
     """
     @initializer
-    def __init__(self, name, description):
-        pass
+    def __init__(self, name, description, capacity=None):
+        self.capacity = capacity
 
 
 
 if __name__ == '__main__':
+    file_data = open("rooms.yaml")
+    print(safe_load(file_data))
     print(Room(1, 3, 4).description)
+    print(Item(1, 2).capacity)
