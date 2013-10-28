@@ -10,16 +10,16 @@ class Gamer:
     The player
     """
     @initializer
-    def __init__(self, name, items, room):
+    def __init__(self, name, room, items = []):
         """
         Da init
         """
-        pass
-    def pick_up(self):
-        pass
+        self.items = items
+    def pick_up(self, item):
+        self.items.append(item)
 
-    def drop(self):
-        pass
+    def drop(self, index):
+        self.items.pop(index)
 
 
 class Room:
@@ -27,11 +27,11 @@ class Room:
     The room is on fire(maybe)
     """
     @initializer
-    def __init__(self, name, description, items):
+    def __init__(self, name, description, items = []):
         """
         Da init2
         """
-        pass
+        self.items = items
 
 class Item:
     """
@@ -42,6 +42,7 @@ class Item:
         self.capacity = capacity
 
 
+FIRE = 1000
 
 if __name__ == '__main__':
     with open("rooms.yaml") as data_file:
@@ -50,7 +51,7 @@ if __name__ == '__main__':
     room_order = list(range(room_number))
     random.shuffle(room_order)
     print(room_order)
-    graph = connected_watts_strogatz_graph(5, 2,0.2) #so called small world graph
+    graph = connected_watts_strogatz_graph(room_number+1, 2,0.2) #so called small world graph
     print(rooms_data)
     print(Room(1, 3, 4).description)
     print(Item(1, 2).capacity)
