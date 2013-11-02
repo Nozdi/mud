@@ -1,0 +1,31 @@
+-   name: glass
+    description: You can drink water with it
+    capacity: 10
+
+-   name: backet
+    description: Oh shit lot of water
+    capacity: 70
+
+-   name: pot
+    description: The soup was to salty
+    capacity: 40
+
+-   name: bottle of whiskey
+    description: It is already empty... SAD :(
+    capacity: 40
+
+-   name: koneffka
+    description: It is a very good idea to use it
+    capacity: 80
+
+-   name: sponge
+    description: Sorry Mario, Your backet is in annother room...
+    capacity: 5
+
+-   name: sandwich
+    description: You can use it, as a primitive sponge... Meeh, just eat it bro.
+    capacity: 1
+
+-   name: knife
+    description: No usage for putting off fire.
+    capacity: 0

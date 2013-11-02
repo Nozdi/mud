@@ -1,12 +1,19 @@
 -   name: kitchen
     description: You can eat here
-    items:
-        - glass:
-            description: You can drink water with it
-            capacity: 10
+    water_source: 1
+
 -   name: bathroom
     description: water is here!
-    items:
-        - backet:
-            description: Oh shit lot of water
-            capacity: 40
+    water_source: 1
+
+-   name: living room
+    description: Oohh there is "Married with children" on! And no water in here...
+
+-   name: hall
+    description: For sure no gaśnica in here...
+
+-   name: attic
+    description: A lot of staff in here, even some spiders...
+
+-   name: basement
+    description: Very interesting place
