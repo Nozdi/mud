@@ -18,8 +18,7 @@ class Room:
     def is_here(self, name):
         return name in [player.name for player in self.players]
 
-    def remove_player(self, player_name):
-        player = list(filter(lambda x: x.name==player_name, self.players))[0]
+    def remove_player(self, player):
         self.players.remove(player)
 
     def add_player(self, player):
@@ -91,7 +90,8 @@ class Game:
         self.rooms[0].players.append(Player(name, items))
 
     def change_room(self, player, from_room, to_room):
-        pass
+        from_room.remove_player(player)
+        to_room.add_player(player)
 
 
 if __name__ == '__main__':
