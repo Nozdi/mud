@@ -72,7 +72,7 @@ class Game:
         for p in self.rooms:
             print(p.id, p.name, p.neighbors, p.items)
 
-        self.fired_room = random.randint(1, len(rooms))
+        self.fired_room = random.randint(1, len(self.rooms))
 
     def get_rooms():
         return self.rooms
