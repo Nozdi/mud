@@ -16,15 +16,5 @@ hardcoded_fire = u"""
 
 print(hardcoded_fire)
 
-class Player:
-    """
-    The player
-    """
-    def __init__(self, name, room, items = []):
-        self.name = name
-        self.room = room
-        self.items = items
 
-    def drop(self, index):
-        self.items.pop(index)
 

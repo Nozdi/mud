@@ -25,7 +25,6 @@ class Room:
         self.players.append(player)
 
 
-
 class Player:
     """
     The player
@@ -54,7 +53,7 @@ class Item:
 
 class Game:
     def __init__(self, connections_amount=2, connection_propability=0.2):
-        self.fire = 1000
+        self.__fire = 1000
         with open("items.yaml") as data_file:
             items_data = safe_load(data_file)
             self.items = [ Item(elem['name'], elem['description'], elem['capacity'])
