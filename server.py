@@ -15,8 +15,8 @@ class Room:
         self.water_source = water_source
         self.players = []
 
-    def is_here(self, name):
-        return name in [player.name for player in self.players]
+    def is_here(self, player):
+        return player in self.players
 
     def remove_player(self, player):
         self.players.remove(player)
@@ -81,9 +81,9 @@ class Game:
     def get_rooms(self):
         return self.rooms
 
-    def where_is(self, name):
+    def where_is(self, player):
         for room in self.rooms:
-            if room.is_here(name):
+            if room.is_here(player):
                 return room
 
     def add_player(self, name, items=None):
