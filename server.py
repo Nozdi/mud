@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.3
 from yaml import safe_load
-from networkx import connected_watts_strogatz_graph as graph_gen
+from networkx import connected_watts_strogatz_graph as graph_gen #so called small world graph
 import Pyro4
 import random
 
@@ -17,6 +17,7 @@ class Room:
 
     def is_here(name):
         return name in [player.name for player in self.players]
+
 
 
 class Player:
@@ -69,10 +70,7 @@ class Game:
             room.id = no
             room.neighbors = self.graph.neighbors(no)
 
-        for p in self.rooms:
-            print(p.id, p.name, p.neighbors, p.items)
-
-        self.fired_room = random.randint(1, len(self.rooms))
+        self.fired_room = random.randint(1, len(self.rooms)) #we start at 0
 
     def get_rooms():
         return self.rooms
@@ -84,15 +82,4 @@ class Game:
 
 
 if __name__ == '__main__':
-    with open("rooms.yaml") as data_file:
-        rooms_data = safe_load(data_file)
-    room_number = len(rooms_data)
-    room_order = list(range(room_number))
-    random.shuffle(room_order)
-    print(room_order)
-    #graph = connected_watts_strogatz_graph(room_number+1, 2,0.2) #so called small world graph
-    print(rooms_data)
-    print(Room(1, 3, 4).description)
-    print(Item(1, 2).capacity)
-    # initializator()
     Game()
