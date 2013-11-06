@@ -15,8 +15,15 @@ class Room:
         self.water_source = water_source
         self.players = []
 
-    def is_here(name):
+    def is_here(self, name):
         return name in [player.name for player in self.players]
+
+    def remove_player(self, player_name):
+        player = list(filter(lambda x: x.name==player_name, self.players))[0]
+        self.players.remove(player)
+
+    def add_player(self, player):
+        self.players.append(player)
 
 
 
@@ -72,17 +79,24 @@ class Game:
 
         self.fired_room = random.randint(1, len(self.rooms)) #we start at 0
 
-    def get_rooms():
+    def get_rooms(self):
         return self.rooms
 
-    def where_is(name):
+    def where_is(self, name):
         for room in self.rooms:
             if room.is_here(name):
                 return room
 
-    def add_player(name, items):
-        self.room[0].players.append(Player(name, items))
+    def add_player(self, name, items=None):
+        self.rooms[0].players.append(Player(name, items))
+
+    def change_room(self, player, from_room, to_room):
+        pass
 
 
 if __name__ == '__main__':
-    Game()
+    da_game = Game()
+    da_game.add_player("John")
+    da_game.rooms[0].remove_player("John")
+    print(da_game.rooms[0].players)
+
