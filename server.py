@@ -3,6 +3,7 @@ from yaml import safe_load
 from networkx import connected_watts_strogatz_graph as graph_gen #so called small world graph
 import Pyro4
 import random
+from threading import Timer
 
 class Room:
     """
@@ -29,7 +30,7 @@ class Room:
         if self.items:
             description += "\nitems: %s" % (self.items,)
         if self.water_source:
-            description += "\nYou can take from here water!!"
+            description += "\nYou can take water from here!!"
         return description
 
 class Player:
@@ -83,6 +84,18 @@ class Game:
             room.neighbors = self.graph.neighbors(no)
 
         self.fired_room = random.randint(1, len(self.rooms)) #we start at 0
+        self.spread_fire()
+
+    def get_fire(self):
+        return self.__fire
+
+    def put_out_fire(self, quantity):
+        self.__fire -= quantity
+
+    def spread_fire(self):
+        if self.__fire != 0:
+            self.__fire += 3
+            Timer(3, self.spread_fire).start()
 
     def get_rooms(self):
         return self.rooms
@@ -110,4 +123,7 @@ if __name__ == '__main__':
     # da_game.rooms[0].remove_player("John")
     print(da_game.rooms[0].describe_me())
     print(da_game.rooms[0].players)
+    # import time
+    # time.sleep(10)
+    # print(da_game.get_fire())
 
