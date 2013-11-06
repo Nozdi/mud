@@ -24,6 +24,13 @@ class Room:
     def add_player(self, player):
         self.players.append(player)
 
+    def describe_me(self):
+        description = "You are in %s\n%s" % (self.name, self.description)
+        if self.items:
+            description += "\nitems: %s" % (self.items,)
+        if self.water_source:
+            description += "\nYou can take from here water!!"
+        return description
 
 class Player:
     """
@@ -95,9 +102,12 @@ class Game:
         to_room.add_player(player)
 
 
+
+
 if __name__ == '__main__':
     da_game = Game()
     da_game.add_player("John")
-    da_game.rooms[0].remove_player("John")
+    # da_game.rooms[0].remove_player("John")
+    print(da_game.rooms[0].describe_me())
     print(da_game.rooms[0].players)
 
