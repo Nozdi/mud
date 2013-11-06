@@ -53,6 +53,7 @@ class Item:
         self.name = name
         self.description = description
         self.capacity = capacity
+        self.is_full = False
 
     def __repr__(self):
         return self.name
