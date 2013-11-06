@@ -86,7 +86,9 @@ class Game:
                 return room
 
     def add_player(self, name, items=None):
-        self.rooms[0].players.append(Player(name, items))
+        gamer = Player(name, items)
+        self.rooms[0].players.append(gamer)
+        return gamer
 
     def change_room(self, player, from_room, to_room):
         from_room.remove_player(player)
