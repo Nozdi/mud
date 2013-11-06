@@ -80,6 +80,9 @@ class Game:
             if room.is_here(name):
                 return room
 
+    def add_player(name, items):
+        self.room[0].players.append(Player(name, items))
+
 
 if __name__ == '__main__':
     Game()
