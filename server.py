@@ -26,8 +26,8 @@ class Room:
         self.players.append(player)
 
     def describe_me(self):
-        gamerz = ' '.join(map(str, self.players)) or "noone"
-        description = "You are in %s with %s\n%s" % (self.name, gamerz, self.description)
+        description = "You are in %s. People in room: %s\n%s" % (self.name,\
+                      ' '.join(map(str, self.players)), self.description)
         if self.items:
             description += "\nitems: %s" % (self.items,)
         if self.water_source:
