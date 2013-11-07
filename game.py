@@ -28,7 +28,9 @@ class Mud:
         self.player = self.game.add_player(name)
         self.rooms = tuple(self.game.get_rooms())
         self.current_room = self.where_is()
-        self.max_capacity = 80
+        print(self.current_room.describe_me())
+        print("You can go to:",
+            ', '.join([room.name for room in self.neighbors]))
 
     def where_is(self):
         return self.game.where_is(self.player)
@@ -43,25 +45,44 @@ class Mud:
         return [self.rooms[index] for index in self.current_room.neighbors]
 
     def change_room(self, room_name):
+        if room_name not in [room.name for room in self.neighbors]:
+            print("There is no such a room")
+            return
+
         self.game.change_room(
             self.player,
             self.current_room,
             self.get_object(self.rooms, room_name)
             )
         self.current_room = self.where_is()
+
         print(self.current_room.describe_me())
+
+        if self.current_room.water_source:
+            for item in self.player.items:
+                if item.capacity:
+                    print(item, "filled with water")
+                    self.is_full = True
+
+        if self.current_room.id == self.game.fired_room:
+            print("FIIREEE, type splash!")
         print("You can go to:",
             ', '.join([room.name for room in self.neighbors]))
+
+
+
 
     def take_item(self, item_name):
         item = self.current_room.get_item(item_name)
         if item is not None:
-            print(item)
-            if self.player.items_capacity() + item.capacity > self.max_capacity:
-                print("Item is to big, if you really want it, drop some items")
+            if (self.player.items_capacity() + item.capacity
+                > self.player.max_capacity):
+                print("Item is too big, if you really want it, drop some items")
+                print("Your items:", self.player.items)
                 self.current_room.drop_item(item)
             else:
                 self.player.take(item)
+                print(item.describe_me())
         else:
             print("There is no such an item")
 
@@ -70,17 +91,23 @@ class Mud:
         self.player.drop(item)
         self.current_room.drop_item(item)
 
+    def splash(self):
+        substruct = sum([ item.capacity for item in self.player.items \
+            if item.is_full ])
+        self.game.put_out_fire(substruct)
+
 
 def run_game():
-    game = Mud()
+    mud = Mud()
     commands = {
-        'go': game.change_room,
-        'take': game.take_item,
-        'drop': game.drop_item,
-        'splash': None
+        'go': mud.change_room,
+        'take': mud.take_item,
+        'drop': mud.drop_item,
+        'splash': mud.splash
         }
 
-    while True:
+    while mud.game.get_fire() > 0:
+        print(mud.game.get_fire())
         cmd = input().strip().split(maxsplit=1)
         if cmd[0] in commands.keys():
             if len(cmd) == 1: commands[cmd[0]]()
