@@ -5,22 +5,32 @@ import Pyro4
 import random
 from threading import Timer
 
+def get_object(container, name):
+    for elem in container:
+        if elem.name == name:
+            return elem
+
 class Room:
     """
     The room is on fire (maybe)
     """
     def __init__(self, name, description, items = [], water_source=False):
-        self.name = name
+        self.name = name #unique
         self.description = description
         self.items = items
         self.water_source = water_source
         self.players = []
 
     def is_here(self, player):
-        return player in self.players
+        return player in [player.name for player in self.players]
 
     def remove_player(self, player):
-        self.players.remove(player)
+        who = None
+        for gamer in self.players:
+            if gamer.name == player:
+                who = gamer
+                break
+        self.players.remove(who)
 
     def add_player(self, player):
         self.players.append(player)
@@ -52,8 +62,7 @@ class Player:
     The player
     """
     def __init__(self, name, items = []):
-        Player.max_capacity = 80
-        self.name = name
+        self.name = name #unique
         self.items = items
 
     def items_capacity(self):
@@ -132,12 +141,12 @@ class Game:
             Timer(3, self.spread_fire).start()
 
     def get_rooms(self):
-        return self.rooms
+        return [room.name for room in self.rooms]
 
     def where_is(self, player):
         for room in self.rooms:
             if room.is_here(player):
-                return room
+                return room.name
 
     def add_player(self, name, items=[]):
         gamer = Player(name, items)
@@ -145,9 +154,22 @@ class Game:
         return gamer
 
     def change_room(self, player, from_room, to_room):
-        from_room.remove_player(player)
-        to_room.add_player(player)
+        f = get_object(self.rooms, from_room)
+        t = get_object(self.rooms, to_room)
+        gamer_list = []
+        for room in self.rooms:
+            gamer_list+=room.players
+        object_ = get_object(gamer_list, player)
+        f.remove_player(object_)
+        t.add_player(object_)
 
+    def player_take_item(self, player, item, room):
+        pass
+
+    def player_drop_item(self, player, item, room):
+        pass
+
+    #TODO przezucic caly interfejs z game na serwer, w game maja byc wrzucane tylko komunikaty do serwera a on to robi
 
 
 if __name__ == '__main__':

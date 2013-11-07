@@ -36,7 +36,7 @@ class Mud:
 
 
     def where_is(self):
-        return self.game.where_is(self.player)
+        return self.game.where_is(self.player.name)
 
     def get_object(self, container, name):
         for elem in container:
@@ -53,9 +53,9 @@ class Mud:
             return
 
         self.game.change_room(
-            self.player,
-            self.current_room,
-            self.get_object(self.rooms, room_name)
+            self.player.name,
+            self.current_room.name,
+            room_name
             )
         self.current_room = self.where_is()
 
@@ -78,8 +78,7 @@ class Mud:
     def take_item(self, item_name):
         item = self.current_room.get_item(item_name)
         if item is not None:
-            if (self.player.items_capacity() + item.capacity
-                > self.player.max_capacity):
+            if (self.player.items_capacity() + item.capacity > 80):
                 print("Item is too big, if you really want it, drop some items")
                 print("Your items:", self.player.items)
                 self.current_room.drop_item(item)
@@ -106,7 +105,11 @@ class Mud:
         print(hardcoded_fire)
         name = input("Type your name soldier: ").strip()
         self.player = self.game.add_player(name)
+        # print(self.game.where_is(self.player))
         self.rooms = tuple(self.game.get_rooms())
+        print(self.player in self.rooms[0].players)
+        print(self.rooms[0].players)
+        print(self.player)
         self.current_room = self.where_is()
         print(self.current_room.describe_me())
         print("You can go to:",
@@ -121,20 +124,20 @@ class Mud:
         print("FIRE IS GONE, CONGRATS!!")
 
 
-class DaemonThread(threadutil.Thread):
-    def __init__(self, mud):
-        threadutil.Thread.__init__(self)
-        self.mud=mud
-        self.setDaemon(True)
+# class DaemonThread(threadutil.Thread):
+#     def __init__(self, mud):
+#         threadutil.Thread.__init__(self)
+#         self.mud=mud
+#         self.setDaemon(True)
 
-    def run(self):
-        with Pyro4.core.Daemon() as daemon:
-            daemon.register(self.mud)
-            daemon.requestLoop(lambda: True)
+#     def run(self):
+#         with Pyro4.core.Daemon() as daemon:
+#             daemon.register(self.mud)
+#             daemon.requestLoop(lambda: True)
 
 if __name__ == '__main__':
     mud = Mud()
-    daemonthred = DaemonThread(mud)
-    daemonthred.start()
+    # daemonthred = DaemonThread(mud)
+    # daemonthred.start()
     mud.start()
 
