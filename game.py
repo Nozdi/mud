@@ -26,16 +26,17 @@ class Mud:
         name = input("Type your name soldier: ").strip()
         self.game = Game()
         self.player = self.game.add_player(name)
-        self.rooms = self.game.get_rooms()
+        self.rooms = tuple(self.game.get_rooms())
         self.current_room = self.where_is()
+        self.max_capacity = 80
 
     def where_is(self):
         return self.game.where_is(self.player)
 
-    def get_room_object(self, room_name):
-        for room in self.rooms:
-            if room.name == room_name:
-                return room
+    def get_object(self, container, name):
+        for elem in container:
+            if elem.name == name:
+                return elem
 
     @property
     def neighbors(self):
@@ -45,14 +46,48 @@ class Mud:
         self.game.change_room(
             self.player,
             self.current_room,
-            self.get_room_object(room_name)
+            self.get_object(self.rooms, room_name)
             )
         self.current_room = self.where_is()
-
+        print(self.current_room.describe_me())
         print("You can go to:",
             ', '.join([room.name for room in self.neighbors]))
+
+    def take_item(self, item_name):
+        item = self.current_room.get_item(item_name)
+        if item is not None:
+            print(item)
+            if self.player.items_capacity() + item.capacity > self.max_capacity:
+                print("Item is to big, if you really want it, drop some items")
+                self.current_room.drop_item(item)
+            else:
+                self.player.take(item)
+        else:
+            print("There is no such an item")
+
+    def drop_item(self, item_name):
+        item = self.get_object(self.player.items, item_name)
+        self.player.drop(item)
+        self.current_room.drop_item(item)
+
+
+def run_game():
+    game = Mud()
+    commands = {
+        'go': game.change_room,
+        'take': game.take_item,
+        'drop': game.drop_item,
+        'splash': None
+        }
+
+    while True:
+        cmd = input().strip().split(maxsplit=1)
+        if cmd[0] in commands.keys():
+            if len(cmd) == 1: commands[cmd[0]]()
+            else: commands[cmd[0]](cmd[1])
+
 
 
 
 if __name__ == '__main__':
-    Mud().change_room('kitchen')
+    run_game()
