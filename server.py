@@ -33,6 +33,14 @@ class Room:
             description += "\nYou can take water from here!!"
         return description
 
+    def get_item(self, name):
+        for no, elem in enumerate(self.items):
+            if elem.name == name:
+                number = no
+                break
+        return self.items.pop(number)
+
+
 class Player:
     """
     The player
