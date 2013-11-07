@@ -50,6 +50,7 @@ class Player:
     The player
     """
     def __init__(self, name, items = []):
+        Player.max_capacity = 80
         self.name = name
         self.items = items
 
@@ -132,7 +133,7 @@ class Game:
             if room.is_here(player):
                 return room
 
-    def add_player(self, name, items=None):
+    def add_player(self, name, items=[]):
         gamer = Player(name, items)
         self.rooms[0].players.append(gamer)
         return gamer
