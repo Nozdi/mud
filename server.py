@@ -46,6 +46,7 @@ class Room:
         self.items.append(item)
 
 
+
 class Player:
     """
     The player
@@ -150,12 +151,9 @@ class Game:
 
 
 if __name__ == '__main__':
-    da_game = Game()
-    da_game.add_player("John")
-    # da_game.rooms[0].remove_player("John")
-    print(da_game.rooms[0].describe_me())
-    print(da_game.rooms[0].players)
-    # import time
-    # time.sleep(10)
-    # print(da_game.get_fire())
+    with Pyro4.core.Daemon() as daemon:
+        with Pyro4.naming.locateNS() as ns:
+            uri=daemon.register(Game())
+            ns.register("game.server",uri)
+        daemon.requestLoop()
 
