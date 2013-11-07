@@ -22,7 +22,6 @@ with liquids, then find the source of fire, and PUT OUT THE FIRE.
 
 class Mud:
     def __init__(self):
-        print(hardcoded_fire)
         name = input("Type your name soldier: ").strip()
         self.game = Game()
         self.player = self.game.add_player(name)
@@ -62,7 +61,7 @@ class Mud:
             for item in self.player.items:
                 if item.capacity:
                     print(item, "filled with water")
-                    self.is_full = True
+                    item.is_full = True
 
         if self.current_room.id == self.game.fired_room:
             print("FIIREEE, type splash!")
@@ -96,8 +95,12 @@ class Mud:
             if item.is_full ])
         self.game.put_out_fire(substruct)
 
+        for item in self.player.items:
+            item.is_full = False
+
 
 def run_game():
+    print(hardcoded_fire)
     mud = Mud()
     commands = {
         'go': mud.change_room,
