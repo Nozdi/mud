@@ -34,11 +34,12 @@ class Room:
         return description
 
     def get_item(self, name):
+        number = None
         for no, elem in enumerate(self.items):
             if elem.name == name:
                 number = no
                 break
-        return self.items.pop(number)
+        return self.items.pop(number) if number else None
 
 
 class Player:
