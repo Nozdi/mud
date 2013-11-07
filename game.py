@@ -19,6 +19,9 @@ You start in radom room. You have to find some items with ability to filling
 with liquids, then find the source of fire, and PUT OUT THE FIRE.
 """
 
+
+Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
+Pyro4.config.SERIALIZER='pickle'
 #print(hardcoded_fire)
 
 class Mud:
