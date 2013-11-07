@@ -56,6 +56,9 @@ class Player:
     def items_capacity(self):
         return sum([item.capacity for item in self.items])
 
+    def take(self, item):
+        self.items.append(item)
+
     def drop(self, item):
         self.items.remove(item)
 
