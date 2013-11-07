@@ -70,6 +70,14 @@ class Item:
         self.capacity = capacity
         self.is_full = False
 
+    def describe_me(self):
+        description = "This is %s. %s" % (self.name, self.description)
+        if self.capacity > 0:
+            description += "\nThis item has %s capacity." % (self.capacity,)
+        if self.is_full:
+            description += "\nIt is full of water."
+        return description
+
     def __repr__(self):
         return self.name
 
