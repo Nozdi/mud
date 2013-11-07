@@ -41,6 +41,9 @@ class Player:
         self.name = name
         self.items = items
 
+    def items_capacity(self):
+        return sum([item.capacity for item in self.items])
+
     def drop(self, index):
         self.items.pop(index)
 
@@ -114,7 +117,6 @@ class Game:
     def change_room(self, player, from_room, to_room):
         from_room.remove_player(player)
         to_room.add_player(player)
-
 
 
 
