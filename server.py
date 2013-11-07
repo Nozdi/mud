@@ -26,7 +26,8 @@ class Room:
         self.players.append(player)
 
     def describe_me(self):
-        description = "You are in %s with %s\n%s" % (self.name, ' '.join(self.players), self.description)
+        gamerz = ' '.join(map(str, self.players)) or "noone"
+        description = "You are in %s with %s\n%s" % (self.name, gamerz, self.description)
         if self.items:
             description += "\nitems: %s" % (self.items,)
         if self.water_source:
@@ -63,8 +64,9 @@ class Player:
     def drop(self, item):
         self.items.remove(item)
 
-    def __repl__(self):
+    def __str__(self):
         return self.name
+
 
 
 class Item:
