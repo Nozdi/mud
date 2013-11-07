@@ -41,6 +41,9 @@ class Room:
                 break
         return self.items.pop(number) if number else None
 
+    def drop_item(self, item):
+        self.items.append(item)
+
 
 class Player:
     """
