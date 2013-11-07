@@ -2,6 +2,7 @@
 
 import curses
 import Pyro4
+from Pyro4 import threadutil
 from server import Game
 
 hardcoded_fire = u"""
@@ -22,14 +23,14 @@ with liquids, then find the source of fire, and PUT OUT THE FIRE.
 
 class Mud:
     def __init__(self):
-        name = input("Type your name soldier: ").strip()
-        self.game = Game()
-        self.player = self.game.add_player(name)
-        self.rooms = tuple(self.game.get_rooms())
-        self.current_room = self.where_is()
-        print(self.current_room.describe_me())
-        print("You can go to:",
-            ', '.join([room.name for room in self.neighbors]))
+        self.commands = {
+            'go': self.change_room,
+            'take': self.take_item,
+            'drop': self.drop_item,
+            'splash': self.splash
+            }
+        self.game = Pyro4.core.Proxy('PYRONAME:game.server')
+
 
     def where_is(self):
         return self.game.where_is(self.player)
@@ -98,26 +99,39 @@ class Mud:
         for item in self.player.items:
             item.is_full = False
 
+    def start(self):
+        print(hardcoded_fire)
+        name = input("Type your name soldier: ").strip()
+        self.player = self.game.add_player(name)
+        self.rooms = tuple(self.game.get_rooms())
+        self.current_room = self.where_is()
+        print(self.current_room.describe_me())
+        print("You can go to:",
+            ', '.join([room.name for room in self.neighbors]))
+        while self.game.get_fire() > 0:
+            print(self.game.get_fire())
+            cmd = input().strip().split(maxsplit=1)
+            if cmd[0] in self.commands.keys():
+                if len(cmd) == 1: self.commands[cmd[0]]()
+                else: self.commands[cmd[0]](cmd[1])
 
-def run_game():
-    print(hardcoded_fire)
-    mud = Mud()
-    commands = {
-        'go': mud.change_room,
-        'take': mud.take_item,
-        'drop': mud.drop_item,
-        'splash': mud.splash
-        }
-
-    while mud.game.get_fire() > 0:
-        print(mud.game.get_fire())
-        cmd = input().strip().split(maxsplit=1)
-        if cmd[0] in commands.keys():
-            if len(cmd) == 1: commands[cmd[0]]()
-            else: commands[cmd[0]](cmd[1])
+        print("FIRE IS GONE, CONGRATS!!")
 
 
+class DaemonThread(threadutil.Thread):
+    def __init__(self, mud):
+        threadutil.Thread.__init__(self)
+        self.mud=mud
+        self.setDaemon(True)
 
+    def run(self):
+        with Pyro4.core.Daemon() as daemon:
+            daemon.register(self.mud)
+            daemon.requestLoop(lambda: True)
 
 if __name__ == '__main__':
-    run_game()
+    mud = Mud()
+    daemonthred = DaemonThread(mud)
+    daemonthred.start()
+    mud.start()
+
