@@ -27,7 +27,7 @@ class Room:
     def remove_player(self, player):
         who = None
         for gamer in self.players:
-            if gamer.name == player:
+            if gamer.name == player.name:
                 who = gamer
                 break
         self.players.remove(who)
@@ -56,7 +56,6 @@ class Room:
         self.items.append(item)
 
 
-
 class Player:
     """
     The player
@@ -76,7 +75,6 @@ class Player:
 
     def __str__(self):
         return self.name
-
 
 
 class Item:
@@ -101,7 +99,6 @@ class Item:
         return self.name
 
 
-
 class Game:
     def __init__(self, connections_amount=2, connection_propability=0.2):
         self.__fire = 1000
@@ -123,17 +120,29 @@ class Game:
                                connection_propability)
         random.shuffle(self.rooms)
         for no, room in enumerate(self.rooms):
-            room.id = no
-            room.neighbors = self.graph.neighbors(no)
+            room.neighbors = [self.rooms[index].name for index in \
+                                                self.graph.neighbors(no)]
 
-        self.fired_room = random.randint(1, len(self.rooms)) #we start at 0
+        self.fired_room = self.rooms[random.randint(1, len(self.rooms))].name 
+        #we start at 0
         self.spread_fire()
+
+    @property
+    def players(self):
+        gamer_list = []
+        for room in self.rooms:
+            gamer_list+=room.players
+        return gamer_list
 
     def get_fire(self):
         return self.__fire
 
     def put_out_fire(self, quantity):
         self.__fire -= quantity
+
+    def get_neighbors(self, player_room):
+        current_room = get_object(self.rooms, player_room)
+        return current_room.neighbors
 
     def spread_fire(self):
         if self.__fire != 0:
@@ -151,27 +160,66 @@ class Game:
     def add_player(self, name, items=[]):
         gamer = Player(name, items)
         self.rooms[0].players.append(gamer)
-        return gamer
+        return gamer.name
 
-    def change_room(self, player, from_room, to_room):
+    def change_room(self, player_name, from_room, to_room):
         f = get_object(self.rooms, from_room)
         t = get_object(self.rooms, to_room)
-        gamer_list = []
-        for room in self.rooms:
-            gamer_list+=room.players
-        object_ = get_object(gamer_list, player)
-        f.remove_player(object_)
-        t.add_player(object_)
-
-    def player_take_item(self, player, item, room):
-        pass
-
-    def player_drop_item(self, player, item, room):
-        pass
-
-    #TODO przezucic caly interfejs z game na serwer, w game maja byc wrzucane tylko komunikaty do serwera a on to robi
+        player = get_object(self.players, player_name)
+        f.remove_player(player)
+        t.add_player(player)
+        ret = t.describe_me()
+        if t.water_source:
+            for item in player.items:
+                item.is_full = True
+                ret += "\n%s filled with water" % item.name
+        if t.name == self.fired_room:
+            ret += "\nFIIIREEEEE!!! Type 'splash'!"
+        return ret
 
 
+    def describe_room(self, room_name):
+        room = get_object(self.rooms, room_name)
+        return room.describe_me()
+
+    def player_take_item(self, player_name, item_name, room_name):
+        player = get_object(self.players, player_name)
+        room = get_object(self.rooms, room_name)
+        item = room.get_item(item_name)
+        if item is not None:
+            if (player.items_capacity() + item.capacity > 80):
+                room.drop_item(item)
+                return ("Item is too big, if you really want it" + 
+                    "drop some items. Your items:",
+                    [item.name for item in player.items])
+            else:
+                player.take(item)
+                return ("You just took an item:", item.describe_me())
+        else:
+            return ("There is no such an item",)
+
+    def player_drop_item(self, player_name, item_name, room_name):
+        player = get_object(self.players, player_name)
+        room = get_object(self.rooms, room_name)
+        item = get_object(player.items, item_name)
+        if item in player.items:
+            player.drop(item)
+            room.drop_item(item)
+            return("You just dropped: ", item.name)
+        else:
+            return("You don't have such an item",)
+
+    def splash(self, player_name, room_name):
+        player = get_object(self.players, player_name)
+        if player.items:
+            substruct = sum([ item.capacity for item in player.items \
+                    if item.is_full ])
+            for item in player.items:
+                item.is_full = False
+            if room_name == self.fired_room:
+                self.put_out_fire(substruct)
+
+                
 if __name__ == '__main__':
     with Pyro4.core.Daemon() as daemon:
         with Pyro4.naming.locateNS() as ns:
