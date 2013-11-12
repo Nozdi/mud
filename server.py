@@ -31,9 +31,11 @@ class Room:
                 who = gamer
                 break
         self.players.remove(who)
+        return "\nPlayer %s left the %s" % (player, self.name)
 
     def add_player(self, player):
         self.players.append(player)
+        return "\nPlayer %s join the %s" % (player, self.name)
 
     def describe_me(self):
         description = "You are in %s. People in room: %s\n%s" % (self.name,\
@@ -60,9 +62,10 @@ class Player:
     """
     The player
     """
-    def __init__(self, name, items = []):
+    def __init__(self, name, callback, items = []):
         self.name = name #unique
         self.items = items
+        self.callback = callback
 
     def items_capacity(self):
         return sum([item.capacity for item in self.items])
@@ -123,9 +126,26 @@ class Game:
             room.neighbors = [self.rooms[index].name for index in \
                                                 self.graph.neighbors(no)]
 
-        self.fired_room = self.rooms[random.randint(1, len(self.rooms))].name 
         #we start at 0
+        self.fired_room = self.rooms[random.randint(1, len(self.rooms))].name
+
         self.spread_fire()
+
+    def publish(self, room, msg, nick):
+        for player in room.players:        # use a copy of the list
+            try:
+                player.callback.message(msg, nick)    # oneway call
+            except Pyro4.errors.ConnectionClosedError:
+                # connection dropped, remove the listener if it's still there
+                # check for existence because other thread may have killed it already
+                if player in room.players:
+                    room.players.remove(player)
+                    print('Removed dead player %s %s' % (player.name, player.callback))
+
+    def leave(self, player):
+        room = get_object(self.rooms, self.where_is(player))
+        gamer = get_object(room.players, player)
+        room.players.remove(gamer)
 
     @property
     def players(self):
@@ -157,17 +177,21 @@ class Game:
             if room.is_here(player):
                 return room.name
 
-    def add_player(self, name, items=[]):
-        gamer = Player(name, items)
+    def add_player(self, name, callback, items=[]):
+        callback._pyroOneway.add('message')
+        gamer = Player(name, callback, items)
         self.rooms[0].players.append(gamer)
+        self.publish(self.rooms[0], "%s joined the game!" % (name,), name)
         return gamer.name
 
     def change_room(self, player_name, from_room, to_room):
         f = get_object(self.rooms, from_room)
         t = get_object(self.rooms, to_room)
         player = get_object(self.players, player_name)
-        f.remove_player(player)
-        t.add_player(player)
+        msg = f.remove_player(player)
+        self.publish(f, msg, player_name)
+        msg = t.add_player(player)
+        self.publish(t, msg, player_name)
         ret = t.describe_me()
         if t.water_source:
             for item in player.items:
@@ -176,6 +200,18 @@ class Game:
         if t.name == self.fired_room:
             ret += "\nFIIIREEEEE!!! Type 'splash'!"
         return ret
+
+    def describe_room_items(self, room_name):
+        room = get_object(self.rooms, room_name)
+        msg = "\n".join(i.describe_me() for i in room.items)
+        return msg or "There are no items here!"
+
+    def describe_player_items(self, player_name):
+        room_name = self.where_is(player_name)
+        room = get_object(self.rooms, room_name)
+        player = get_object(room.players, player_name)
+        msg = "\n".join(i.describe_me() for i in player.items)
+        return msg or "You have no items!"
 
 
     def describe_room(self, room_name):
@@ -189,7 +225,7 @@ class Game:
         if item is not None:
             if (player.items_capacity() + item.capacity > 80):
                 room.drop_item(item)
-                return ("Item is too big, if you really want it" + 
+                return ("Item is too big, if you really want it" +
                     "drop some items. Your items:",
                     [item.name for item in player.items])
             else:
@@ -219,8 +255,9 @@ class Game:
             if room_name == self.fired_room:
                 self.put_out_fire(substruct)
 
-                
+
 if __name__ == '__main__':
+    # with Pyro4.core.Daemon(host="192.168.1.3", port=9092) as daemon:
     with Pyro4.core.Daemon() as daemon:
         with Pyro4.naming.locateNS() as ns:
             uri=daemon.register(Game())
