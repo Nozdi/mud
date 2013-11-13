@@ -4,7 +4,6 @@ import curses
 import Pyro4
 from Pyro4 import threadutil
 import sys
-# from server import Room, Player, Item
 
 hardcoded_fire = """
  (                     )                           )       (    (   (
@@ -21,9 +20,6 @@ with liquids, then find the source of fire, and PUT OUT THE FIRE.
 """
 
 sys.excepthook = Pyro4.util.excepthook
-# Pyro4.config.SERIALIZERS_ACCEPTED.add('json')
-# Pyro4.config.SERIALIZER='json'
-#print(hardcoded_fire)
 
 class Mud:
     def __init__(self):

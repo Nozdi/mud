@@ -146,6 +146,10 @@ class Game:
         room = get_object(self.rooms, self.where_is(player))
         gamer = get_object(room.players, player)
         room.players.remove(gamer)
+        for item in gamer.items:
+            gamer.drop(item)
+            room.drop_item(item)
+        del gamer
 
     @property
     def players(self):
