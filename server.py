@@ -185,7 +185,8 @@ class Game:
         callback._pyroOneway.add('message')
         gamer = Player(name, callback, items)
         self.rooms[0].players.append(gamer)
-        self.publish(self.rooms[0], "%s joined the game!" % (name,), name)
+        for room in self.rooms:
+            self.publish(room, "%s joined the game!" % (name,), name)
         return gamer.name
 
     def change_room(self, player_name, from_room, to_room):
@@ -261,7 +262,7 @@ class Game:
 
 
 if __name__ == '__main__':
-    # with Pyro4.core.Daemon(host="192.168.1.3", port=9092) as daemon:
+    # with Pyro4.core.Daemon(host="150.254.68.161", port=9092) as daemon:
     with Pyro4.core.Daemon() as daemon:
         with Pyro4.naming.locateNS() as ns:
             uri=daemon.register(Game())

@@ -34,7 +34,7 @@ class Mud:
             }
         self.game = Pyro4.core.Proxy('PYRONAME:game.server')
         self.player = None
-        # self.game = Pyro4.core.Proxy('PYRONAME:game.server@192.168.1.3:9090')
+        # self.game = Pyro4.core.Proxy('PYRONAME:game.server@150.254.68.89:9090')
 
     def where_is(self):
         return self.game.where_is(self.player)
@@ -96,26 +96,29 @@ class Mud:
             ', '.join(self.neighbors)
             )
         self.opt()
-        try:
-            try:
-                while self.game.get_fire() > 0:
-                    print("\nFire level:", self.game.get_fire())
-                    cmd = input().strip().split(maxsplit=1)
-                    if cmd:
-                        cmd[0] = cmd[0].lower()
-                        if cmd[0] in self.commands.keys():
-                            if len(cmd) == 1: self.commands[cmd[0]]()
-                            else: self.commands[cmd[0]](cmd[1])
-                        elif cmd[0]=="quit":
-                            break
 
-            except EOFError:
-                pass
+        try:
+            while self.game.get_fire() > 0:
+                print("\nFire level:", self.game.get_fire())
+                cmd = input().strip().split(maxsplit=1)
+
+                if cmd:
+                    cmd[0] = cmd[0].lower()
+                    if cmd[0] in self.commands.keys():
+                        if len(cmd) == 1: self.commands[cmd[0]]()
+                        else: self.commands[cmd[0]](cmd[1])
+                    elif cmd[0] == "quit":
+                        break
+
+        except (EOFError, KeyboardInterrupt):
+            pass
+
         finally:
             self.game.leave(self.player)
             self._pyroDaemon.shutdown()
 
-        if(self.game.get_fire()<=0): print("FIRE IS GONE, CONGRATS!!")
+        if(self.game.get_fire()<=0):
+            print("FIRE IS GONE, CONGRATS!!")
 
 
 class DaemonThread(threadutil.Thread):
@@ -128,6 +131,7 @@ class DaemonThread(threadutil.Thread):
             daemon.register(self.mud)
             daemon.requestLoop(lambda: self.mud.game.get_fire() > 0)
 
+#"150.254.68.8", port=9090
 if __name__ == '__main__':
     mud = Mud()
     daemonthred = DaemonThread(mud)
